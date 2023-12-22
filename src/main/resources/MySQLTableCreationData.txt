@@ -1,0 +1,17 @@
+CREATE TABLE test_Containers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    test_description VARCHAR(100)
+);
+CREATE TABLE tests (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+   test_text VARCHAR(500),
+   right_answer VARCHAR(100),
+   testContainer_id INT,
+   FOREIGN KEY (testContainer_id) REFERENCES test_Containers(id)
+);
+CREATE TABLE answers (
+     id INT PRIMARY KEY AUTO_INCREMENT,
+     answer VARCHAR(100),
+     test_id INT,
+     FOREIGN KEY (test_id) REFERENCES tests(id)
+);
