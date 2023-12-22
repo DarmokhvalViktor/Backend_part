@@ -22,7 +22,6 @@ public class TestContainerDTO {
         List<TestDTO> testDTOList = new ArrayList<>();
         for(Test test: testContainer.getTestList()) {
             TestDTO testDTO = TestDTO.convertToDTO(test);
-            testDTO.setTestContainer(testContainer);
             testDTOList.add(testDTO);
         }
         testContainerDTO.setTestList(testDTOList);

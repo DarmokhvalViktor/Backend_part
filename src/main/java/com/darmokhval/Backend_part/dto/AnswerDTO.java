@@ -11,15 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AnswerDTO {
     private String answer;
-    private Test test;
-    private int testId;
-
     public static AnswerDTO convertToDTO(Answer answer) {
         AnswerDTO answerDTO = new AnswerDTO();
         answerDTO.setAnswer(answer.getAnswer());
-//        need to set not test, but Test_id, same to do with test_dto TODO
-//        answerDTO.setTest(answer.getTest());
-//        answerDTO.setTestId(answer.getTest().getId());
         return answerDTO;
     }
 }

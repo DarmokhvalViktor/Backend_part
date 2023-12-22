@@ -28,7 +28,6 @@ public class Answer {
     public static Answer convertToEntity(AnswerDTO answerDTO) {
         Answer answer = new Answer();
         answer.setAnswer(answerDTO.getAnswer());
-        answer.setTest(answerDTO.getTest());
         return answer;
     }
 }

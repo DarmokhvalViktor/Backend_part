@@ -17,23 +17,18 @@ public class TestDTO {
     private String testText;
     private String rightAnswer;
     private List<AnswerDTO> answers;
-    private TestContainer testContainer;
 
-//    private int testContainerId;
 
     public static TestDTO convertToDTO(Test test) {
         TestDTO testDTO = new TestDTO();
         testDTO.setTestText(test.getTestText());
         testDTO.setRightAnswer(test.getRightAnswer());
-        testDTO.setTestContainer(test.getTestContainer());
 
         List<AnswerDTO> answerDTOS = new ArrayList<>();
         for(Answer answer: test.getAnswers()) {
             AnswerDTO answerDTO = AnswerDTO.convertToDTO(answer);
-            answerDTO.setTest(test);
             answerDTOS.add(answerDTO);
         }
-//        testDTO.setTestContainerId(test.getTestContainer().getId());
         testDTO.setAnswers(answerDTOS);
         return testDTO;
     }
