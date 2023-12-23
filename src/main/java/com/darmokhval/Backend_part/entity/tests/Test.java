@@ -2,7 +2,6 @@ package com.darmokhval.Backend_part.entity.tests;
 
 import com.darmokhval.Backend_part.dto.AnswerDTO;
 import com.darmokhval.Backend_part.dto.TestDTO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,8 +20,8 @@ public class Test {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "test_text")
-    private String testText;
+    @Column(name = "task_sentence")
+    private String taskSentence;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "test")
     private List<Answer> answers;
@@ -32,13 +31,12 @@ public class Test {
 
     @ManyToOne()
     @JoinColumn(name = "test_container_id")
-    @JsonIgnore
     private TestContainer testContainer;
 
     public static Test convertToEntity(TestDTO testDTO) {
         Test test = new Test();
         test.setRightAnswer(testDTO.getRightAnswer());
-        test.setTestText(testDTO.getTestText());
+        test.setTaskSentence(testDTO.getTaskSentence());
         List<Answer> answerList = new ArrayList<>();
 
         for (AnswerDTO answer: testDTO.getAnswers()) {

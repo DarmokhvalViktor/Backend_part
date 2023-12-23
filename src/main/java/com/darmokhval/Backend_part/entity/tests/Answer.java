@@ -1,7 +1,6 @@
 package com.darmokhval.Backend_part.entity.tests;
 
 import com.darmokhval.Backend_part.dto.AnswerDTO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,6 @@ public class Answer {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "test_id")
-    @JsonIgnore
     private Test test;
 
     public static Answer convertToEntity(AnswerDTO answerDTO) {

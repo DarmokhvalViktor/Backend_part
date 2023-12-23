@@ -20,15 +20,19 @@ public class TestContainer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "test_description")
-    private String description;
+    @Column(name = "test_title")
+    private String title;
+
+    @Column(name = "grade")
+    private String grade;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "testContainer")
     private List<Test> testList;
 
     public static TestContainer convert(TestContainerDTO testContainerDTO) {
         TestContainer testContainer = new TestContainer();
-        testContainer.setDescription(testContainerDTO.getDescription());
+        testContainer.setTitle(testContainerDTO.getTitle());
+        testContainer.setGrade(testContainerDTO.getGrade());
         List<Test> newList = new ArrayList<>();
 
         for(TestDTO test: testContainerDTO.getTestList()) {
