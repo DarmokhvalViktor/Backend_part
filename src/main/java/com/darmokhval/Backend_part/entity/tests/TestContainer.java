@@ -23,6 +23,9 @@ public class TestContainer {
     @Column(name = "test_title")
     private String title;
 
+    @Column(name = "test_instruction")
+    private String testInstruction;
+
     @Column(name = "grade")
     private String grade;
 
@@ -33,6 +36,7 @@ public class TestContainer {
         TestContainer testContainer = new TestContainer();
         testContainer.setTitle(testContainerDTO.getTitle());
         testContainer.setGrade(testContainerDTO.getGrade());
+        testContainer.setTestInstruction(testContainerDTO.getTestInstruction());
         List<Test> newList = new ArrayList<>();
 
         for(TestDTO test: testContainerDTO.getTestList()) {

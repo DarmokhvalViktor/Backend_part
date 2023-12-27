@@ -15,12 +15,14 @@ import java.util.List;
 public class TestContainerDTO {
     private String title;
     private String grade;
+    private String testInstruction;
     private List<TestDTO> testList;
 
     public static TestContainerDTO convertToDTO(TestContainer testContainer) {
         TestContainerDTO testContainerDTO = new TestContainerDTO();
         testContainerDTO.setTitle(testContainer.getTitle());
         testContainerDTO.setGrade(testContainer.getGrade());
+        testContainerDTO.setTestInstruction(testContainer.getTestInstruction());
         List<TestDTO> testDTOList = new ArrayList<>();
         for(Test test: testContainer.getTestList()) {
             TestDTO testDTO = TestDTO.convertToDTO(test);

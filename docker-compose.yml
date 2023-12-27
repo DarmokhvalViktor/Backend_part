@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8-oracle
+    env_file:
+      - .env.mysql
+    volumes:
+      - ./mysql_database:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 5s
+      retries: 5
+
+  backend-part:
+    depends_on:
+      mysql:
+        condition: service_healthy
+    image: test_demo
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    restart: on-failure
