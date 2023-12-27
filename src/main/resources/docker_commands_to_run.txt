@@ -1,0 +1,9 @@
+What is needed? You need:
+1) Create .jar file that contains whole Java application. You can do it if you've got JDK + maven.
+Or I'll share with you that .jar file, and all you need is to create "target" folder in base of project, and place .jar there.
+2) Run command "docker build -t test_demo .", that will crate docker image for application.
+Or I can share via "docker save" image, and you need to import it.
+3) Run command "docker compose up", that will run backend and database with it.
+
+docker build -t test_demo .
+docker compose up
