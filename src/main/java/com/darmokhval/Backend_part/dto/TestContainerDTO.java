@@ -13,16 +13,20 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestContainerDTO {
+    private int id;
     private String title;
     private String grade;
     private String testInstruction;
+    private String subject;
     private List<TestDTO> testList;
 
     public static TestContainerDTO convertToDTO(TestContainer testContainer) {
         TestContainerDTO testContainerDTO = new TestContainerDTO();
         testContainerDTO.setTitle(testContainer.getTitle());
         testContainerDTO.setGrade(testContainer.getGrade());
+        testContainerDTO.setId(testContainer.getId());
         testContainerDTO.setTestInstruction(testContainer.getTestInstruction());
+        testContainerDTO.setSubject(testContainer.getSubject());
         List<TestDTO> testDTOList = new ArrayList<>();
         for(Test test: testContainer.getTestList()) {
             TestDTO testDTO = TestDTO.convertToDTO(test);

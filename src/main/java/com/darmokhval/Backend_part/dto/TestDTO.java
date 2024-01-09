@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestDTO {
+    private int id;
     private String taskSentence;
     private String rightAnswer;
     private List<AnswerDTO> answers;
@@ -22,6 +23,7 @@ public class TestDTO {
         TestDTO testDTO = new TestDTO();
         testDTO.setTaskSentence(test.getTaskSentence());
         testDTO.setRightAnswer(test.getRightAnswer());
+        testDTO.setId(test.getId());
 
         List<AnswerDTO> answerDTOS = new ArrayList<>();
         for(Answer answer: test.getAnswers()) {

@@ -4,6 +4,7 @@ mysql_database
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+mysql_database.rar
 
 ### STS ###
 .apt_generated

@@ -3,6 +3,8 @@ package com.darmokhval.Backend_part.entity.tests;
 import com.darmokhval.Backend_part.dto.AnswerDTO;
 import com.darmokhval.Backend_part.dto.TestDTO;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,12 +23,16 @@ public class Test {
     private int id;
 
     @Column(name = "task_sentence")
+    @NotEmpty(message = "field `taskSentence` should not be empty")
+    @Size(min = 10, max = 300, message = "field should contain minimum - 10, maximum - 300 characters")
     private String taskSentence;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "test")
     private List<Answer> answers;
 
     @Column(name = "right_answer")
+    @NotEmpty(message = "field `rightAnswer` should not be empty")
+    @Size(min = 1, max = 127, message = "field should contain minimum - 1, maximum - 127 characters")
     private String rightAnswer;
 
     @ManyToOne()

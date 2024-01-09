@@ -60,10 +60,12 @@ public class TestContainerService {
         existedContainerDTO.setTitle(testContainerDTO.getTitle());
         existedContainerDTO.setGrade(testContainerDTO.getGrade());
         existedContainerDTO.setTestList(testContainerDTO.getTestList());
+
         return saveTestContainer(existedContainerDTO);
     }
 
 //    I'm not sure if this part of code violates Java principles (because of type casting)
+//    TODO change from saveTEstContainer to Update testcontainer to actually update + add rightaAnswer and answer
     public TestContainerDTO partialUpdateTestContainer(Map<String, Object> valuesToUpdate, Integer id) {
         TestContainerDTO existedContainerDTO = getTestContainerById(id);
         valuesToUpdate.forEach((key, value) -> {
