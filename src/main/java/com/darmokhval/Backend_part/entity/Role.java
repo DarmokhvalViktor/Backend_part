@@ -2,26 +2,28 @@ package com.darmokhval.Backend_part.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "roles")
-@NoArgsConstructor
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private int id;
 
-    @Column()
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ERole name;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+    public Role(ERole name) {
+        this.name = name;
+    }
+
+    //    @ManyToMany(mappedBy = "roles")
+//    private Set<User> users;
 }

@@ -12,8 +12,8 @@ services:
     restart: on-failure
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      timeout: 5s
-      retries: 5
+      timeout: 2s
+      retries: 2
 
   backend-part:
     depends_on:

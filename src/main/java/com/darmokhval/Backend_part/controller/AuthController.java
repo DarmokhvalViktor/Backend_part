@@ -1,72 +1,139 @@
 package com.darmokhval.Backend_part.controller;
 
-import com.darmokhval.Backend_part.dto.Authentication.LoginDTO;
-import com.darmokhval.Backend_part.dto.Authentication.SingUpDTO;
+import com.darmokhval.Backend_part.config.jwt.JwtUtils;
+import com.darmokhval.Backend_part.dto.Authentication.request.LoginRequestDTO;
+import com.darmokhval.Backend_part.dto.Authentication.request.SignupRequest;
+import com.darmokhval.Backend_part.dto.Authentication.response.JwtResponse;
+import com.darmokhval.Backend_part.dto.Authentication.response.MessageResponse;
+import com.darmokhval.Backend_part.entity.ERole;
 import com.darmokhval.Backend_part.entity.Role;
 import com.darmokhval.Backend_part.entity.User;
 import com.darmokhval.Backend_part.repository.RoleRepository;
 import com.darmokhval.Backend_part.repository.UserRepository;
-import org.springframework.http.HttpStatus;
+import com.darmokhval.Backend_part.security.MyCustomUserDetails;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+//    private UserService userService;
     private PasswordEncoder passwordEncoder;
+    private JwtUtils jwtUtils;
 
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    @Autowired
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
+//                          UserService userService,
+                          PasswordEncoder passwordEncoder, RoleRepository roleRepository, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+//        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDTO.getUsername(), loginDTO.getPassword()));
+                loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User login successfully.", HttpStatus.OK);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        MyCustomUserDetails customUserDetails = (MyCustomUserDetails) authentication.getPrincipal();
+        List<String> roles = customUserDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+//                .map(item -> item.getAuthority())
+                .toList();
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                customUserDetails.getId(),
+                customUserDetails.getUsername(),
+                customUserDetails.getEmail(),
+                roles));
+
+//        return new ResponseEntity<>("User login successfully.", HttpStatus.OK);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SingUpDTO signUpDTO) {
-//        check if name exists in database
-        if(userRepository.existsByUsername(signUpDTO.getUsername())) {
-            return new ResponseEntity<>("Username is already taken!", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
+//        check if username exists in database
+        if(userRepository.existsByUsername(signupRequest.getUsername())) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Username is already taken!"));
         }
 //        check if email exists in database
-        if(userRepository.existsByEmail(signUpDTO.getEmail())) {
-            return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
+        if(userRepository.existsByEmail(signupRequest.getEmail())) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Email is already taken!"));
         }
 
-        User user = new User();
-        user.setName(signUpDTO.getName());
-        user.setUsername(signUpDTO.getUsername());
-        user.setEmail(signUpDTO.getEmail());
-        user.setYearOfBirth(signUpDTO.getYearOfBirth());
-        user.setPassword(passwordEncoder.encode(signUpDTO.getPassword()));
+//        create new user's account
+        User user = new User(signupRequest.getUsername(),
+                signupRequest.getEmail(),
+                passwordEncoder.encode(signupRequest.getPassword()));
+//        too difficult to figure how to add roles, so now just set to all users default role user;
+//        Role roleUser = new Role();
+//        roleUser.setName(ERole.ROLE_USER);
+//        Set<Role> setOfRoles = Collections.singleton(roleUser);
 
-        Role roles = roleRepository.findByName("ROLE_ADMIN").get();
-        user.setRoles(Collections.singleton(roles));
+//        BETTER TO USE ENUM!!!!
+
+        user.setRole("ROLE_USER");
+
+//        this is advanced, to check for role in database and if present, attach to user;
+//        Set<String> strRoles = signupRequest.getRole();
+//        Set<Role> roles = new HashSet<>();
+
+//        if (strRoles == null) {
+//            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+//                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//            roles.add(userRole);
+//        } else {
+//            strRoles.forEach(role -> {
+//                switch (role) {
+//                    case "admin":
+//                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                        roles.add(adminRole);
+//
+//                        break;
+//                    case "mod":
+//                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                        roles.add(modRole);
+//
+//                        break;
+//                    default:
+//                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                        roles.add(userRole);
+//                }
+//            });
+//        }
+
 
         userRepository.save(user);
 
-        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
 
     }
 }

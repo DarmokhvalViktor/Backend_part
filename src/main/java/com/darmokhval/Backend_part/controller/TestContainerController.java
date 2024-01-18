@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class TestContainerController {
     private final TestContainerService testContainerService;
@@ -33,7 +34,6 @@ public class TestContainerController {
         }
     }
 
-//    Can we use regular expressions to differ int from string? even in path all string
     @GetMapping("/tests/{id}")
     public ResponseEntity<TestContainerDTO> getTestById(@PathVariable Integer id) {
         try {
@@ -44,8 +44,6 @@ public class TestContainerController {
         }
     }
 
-    //    Not working correctly - returns 200 status, even though I'm checking in service.
-    //    UPD: Or now working correctly????;
     @GetMapping("/tests/grade/{grade}")
     public ResponseEntity<List<TestContainerDTO>> getTestsByGrade(@PathVariable String grade) {
         try {
