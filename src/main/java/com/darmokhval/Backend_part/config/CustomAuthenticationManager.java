@@ -33,7 +33,8 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 //                for (Role role : user.get().getRoleSet()) {
 //                    grantedAuthorityList.add(new SimpleGrantedAuthority(role.getName()));
 //                }
-                return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(), grantedAuthorityList);
+                return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(),
+                        authentication.getCredentials(), grantedAuthorityList);
             } else {
                 throw new BadCredentialsException("Wrong Password");
             }

@@ -10,10 +10,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
-//contains necessary information (such as: username, password, authorities) to build an Authentication object.
+
+/**
+ * contains necessary information (such as: username, password, authorities) to build an Authentication object.
+ * */
 public class MyCustomUserDetails implements UserDetails {
     private static final long serialVersionUID = 1L;
     private Long id;
@@ -21,24 +23,20 @@ public class MyCustomUserDetails implements UserDetails {
     private String email;
     @JsonIgnore
     private String password;
-//    private final User user;
     private Collection<? extends GrantedAuthority> authorities;
 
-//    public MyCustomUserDetails(User user) {
-//        this.user = user;
-//    }
 
-    public MyCustomUserDetails(Long id, String username, String email, String password,Collection<? extends GrantedAuthority> authorities) {
+    public MyCustomUserDetails(Long id, String username, String email, String password,
+                               Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
-//        this.user = user;
     }
 
     public static MyCustomUserDetails build(User user) {
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
 //        List<GrantedAuthority> authorities = user.getRoles().stream()
 //                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
 //                .collect(Collectors.toList());
@@ -104,7 +102,4 @@ public class MyCustomUserDetails implements UserDetails {
         MyCustomUserDetails user = (MyCustomUserDetails) o;
         return Objects.equals(id, user.id);
     }
-    //    public User getUser() {
-//        return this.user;
-//    }
 }

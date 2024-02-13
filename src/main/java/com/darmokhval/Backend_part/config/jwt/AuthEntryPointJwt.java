@@ -19,6 +19,8 @@ import java.util.Map;
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
+//    HttpServletResponse.SC_UNAUTHORIZED is the 401 Status code. It indicates that the request requires HTTP authentication.
+//    If you want to customize the response data, just use an ObjectMapper like following code:
 //    @Override
 //    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
 //            throws IOException, ServletException {
@@ -27,8 +29,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 //    }
 
 
-//    HttpServletResponse.SC_UNAUTHORIZED is the 401 Status code. It indicates that the request requires HTTP authentication.
-//    If you want to customize the response data, just use an ObjectMapper like following code:
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {

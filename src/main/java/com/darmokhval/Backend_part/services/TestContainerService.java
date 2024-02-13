@@ -83,7 +83,6 @@ public class TestContainerService {
         return saveTestContainer(existedContainerDTO);
     }
 
-//    Do I need to check if method throws me an error?
     public TestContainerDTO deleteTestContainer(Integer id) {
         TestContainerDTO deletedContainer = getTestContainerById(id);
         testContainerRepository.deleteById(id);

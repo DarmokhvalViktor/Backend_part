@@ -1,16 +1,14 @@
 package com.darmokhval.Backend_part.dto.Authentication.request;
 
-import com.darmokhval.Backend_part.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SignupRequest {

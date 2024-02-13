@@ -21,9 +21,6 @@ public class TestContainerController {
         this.testContainerService = testContainerService;
     }
 
-//    TODO now learn/try to integrate this application in docker.
-//    after maybe add some authorization/security features
-
     @GetMapping("/tests")
     public ResponseEntity<List<TestContainerDTO>> getAllTests() {
         List<TestContainerDTO> testContainerDTOList = testContainerService.getAllTestContainers();
@@ -69,7 +66,6 @@ public class TestContainerController {
         }
     }
 
-//    Carefully check if this part of program work correctly!! Not sure about this. NOT WORKING CORRECTLY TODO
     @PatchMapping("/tests/{id}")
     public ResponseEntity<TestContainerDTO> partialUpdateTest(@RequestBody Map<String, Object> valuesToUpdate, @PathVariable Integer id) {
         try {

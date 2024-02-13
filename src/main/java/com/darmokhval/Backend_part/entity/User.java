@@ -2,16 +2,11 @@ package com.darmokhval.Backend_part.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.HashSet;
-import java.util.Set;
+import lombok.*;
 
 @Entity
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"username"}),
         @UniqueConstraint(columnNames = {"email"})
@@ -54,8 +49,9 @@ public class User {
 //            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
 //    @Column(name = "role")
 //    private Set<Role> roles = new HashSet<>();
-    @Column(name = "role")
-    private String role;
+//    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private ERole role;
 
     public User() {
     }

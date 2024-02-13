@@ -30,11 +30,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         this.jwtUtils = jwtUtils;
         this.customUserDetailsService = customUserDetailsService;
     }
-//    commented because using custom constructor
-//    but instead this error occurs: Cannot set user authentication: Unexpected Claims JWS.
-
-//    public AuthTokenFilter() {
-//    }
 
     //    What we do inside doFilterInternal():
 //– get JWT from the Authorization header (by removing Bearer prefix)

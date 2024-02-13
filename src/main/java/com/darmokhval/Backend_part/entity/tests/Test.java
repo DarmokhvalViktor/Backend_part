@@ -5,18 +5,16 @@ import com.darmokhval.Backend_part.dto.TestDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "tests")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Test {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

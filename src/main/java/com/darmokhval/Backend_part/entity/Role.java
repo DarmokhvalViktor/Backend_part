@@ -4,11 +4,9 @@ package com.darmokhval.Backend_part.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "roles")
 public class Role {

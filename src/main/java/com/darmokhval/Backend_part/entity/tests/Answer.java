@@ -4,15 +4,13 @@ import com.darmokhval.Backend_part.dto.AnswerDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Table(name = "answers")
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

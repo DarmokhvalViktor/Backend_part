@@ -2,14 +2,13 @@ package com.darmokhval.Backend_part.dto;
 
 import com.darmokhval.Backend_part.entity.tests.Answer;
 import com.darmokhval.Backend_part.entity.tests.Test;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestDTO {
