@@ -1,6 +1,6 @@
-package com.darmokhval.Backend_part.dto;
+package com.darmokhval.Backend_part.models.dto;
 
-import com.darmokhval.Backend_part.entity.tests.Answer;
+import com.darmokhval.Backend_part.models.entity.tests.Answer;
 import lombok.*;
 
 @Getter

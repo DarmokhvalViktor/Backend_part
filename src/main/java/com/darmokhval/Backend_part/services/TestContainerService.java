@@ -1,9 +1,9 @@
 package com.darmokhval.Backend_part.services;
 
-import com.darmokhval.Backend_part.dto.TestContainerDTO;
-import com.darmokhval.Backend_part.dto.TestDTO;
-import com.darmokhval.Backend_part.entity.tests.TestContainer;
-import com.darmokhval.Backend_part.errors.TestContainerNotFoundException;
+import com.darmokhval.Backend_part.models.dto.TestContainerDTO;
+import com.darmokhval.Backend_part.models.dto.TestDTO;
+import com.darmokhval.Backend_part.models.entity.tests.TestContainer;
+import com.darmokhval.Backend_part.exceptions.TestContainerNotFoundException;
 import com.darmokhval.Backend_part.repository.TestContainerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

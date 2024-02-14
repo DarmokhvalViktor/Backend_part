@@ -1,7 +1,7 @@
-package com.darmokhval.Backend_part.dto;
+package com.darmokhval.Backend_part.models.dto;
 
-import com.darmokhval.Backend_part.entity.tests.Answer;
-import com.darmokhval.Backend_part.entity.tests.Test;
+import com.darmokhval.Backend_part.models.entity.tests.Answer;
+import com.darmokhval.Backend_part.models.entity.tests.Test;
 import lombok.*;
 
 import java.util.ArrayList;

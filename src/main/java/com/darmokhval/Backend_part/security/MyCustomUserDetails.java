@@ -1,6 +1,6 @@
 package com.darmokhval.Backend_part.security;
 
-import com.darmokhval.Backend_part.entity.User;
+import com.darmokhval.Backend_part.models.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,9 +37,6 @@ public class MyCustomUserDetails implements UserDetails {
 
     public static MyCustomUserDetails build(User user) {
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
-//        List<GrantedAuthority> authorities = user.getRoles().stream()
-//                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-//                .collect(Collectors.toList());
         return new MyCustomUserDetails(
                 user.getId(),
                 user.getUsername(),

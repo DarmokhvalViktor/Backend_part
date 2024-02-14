@@ -13,6 +13,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +45,7 @@ public class SecurityConfig {
         return new AuthTokenFilter(jwtUtils, customUserDetailsService);
     }
 
+//    This bean is used to get user from database and check for correct data
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -68,20 +72,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-
+//                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(CsrfConfigurer::disable)
+//                .cors(CorsConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/auth/**", "/swagger-ui/**", "/docs", "/test/**").permitAll()
-//                        auth.requestMatchers("/auth/**").permitAll()
-//                                .requestMatchers("/swagger-config").permitAll()
-//                                .requestMatchers("/docs").permitAll()
                                 .anyRequest().authenticated());
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJWTTokenFilter(
-                jwtUtils, customUserDetailsService
-        ), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJWTTokenFilter(jwtUtils, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

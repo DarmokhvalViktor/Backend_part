@@ -1,6 +1,6 @@
-package com.darmokhval.Backend_part.entity.tests;
+package com.darmokhval.Backend_part.models.entity.tests;
 
-import com.darmokhval.Backend_part.dto.AnswerDTO;
+import com.darmokhval.Backend_part.models.dto.AnswerDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

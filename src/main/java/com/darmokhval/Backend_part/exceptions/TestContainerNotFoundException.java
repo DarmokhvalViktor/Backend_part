@@ -1,4 +1,4 @@
-package com.darmokhval.Backend_part.errors;
+package com.darmokhval.Backend_part.exceptions;
 
 public class TestContainerNotFoundException extends RuntimeException{
     public TestContainerNotFoundException(Integer id) {

@@ -1,7 +1,7 @@
 package com.darmokhval.Backend_part.services;
 
-import com.darmokhval.Backend_part.entity.ERole;
-import com.darmokhval.Backend_part.entity.User;
+import com.darmokhval.Backend_part.models.entity.ERole;
+import com.darmokhval.Backend_part.models.entity.User;
 import com.darmokhval.Backend_part.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;

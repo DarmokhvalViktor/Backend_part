@@ -1,4 +1,4 @@
-package com.darmokhval.Backend_part.dto.Authentication.response;
+package com.darmokhval.Backend_part.models.dto.Authentication.response;
 
 public class MessageResponse {
     private String message;

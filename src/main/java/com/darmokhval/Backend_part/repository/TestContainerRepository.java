@@ -1,6 +1,6 @@
 package com.darmokhval.Backend_part.repository;
 
-import com.darmokhval.Backend_part.entity.tests.TestContainer;
+import com.darmokhval.Backend_part.models.entity.tests.TestContainer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
 package com.darmokhval.Backend_part.config;
 
-import com.darmokhval.Backend_part.entity.User;
+import com.darmokhval.Backend_part.models.entity.User;
 import com.darmokhval.Backend_part.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * TODO check if used
+ */
 public class CustomAuthenticationManager implements AuthenticationManager {
 
     UserRepository userRepo;

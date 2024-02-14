@@ -1,4 +1,4 @@
-package com.darmokhval.Backend_part.entity;
+package com.darmokhval.Backend_part.models.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -16,7 +16,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    NotBlank vs NotNull, interesting question
 //    @Column(name = "name")
 //    @NotBlank(message = "field `name` should not be empty")
 //    @Size(min = 1, max = 150, message = "field should contain minimum - 1, maximum - 150 characters")

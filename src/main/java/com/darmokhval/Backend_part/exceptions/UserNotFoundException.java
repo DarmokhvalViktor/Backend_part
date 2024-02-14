@@ -1,4 +1,4 @@
-package com.darmokhval.Backend_part.errors;
+package com.darmokhval.Backend_part.exceptions;
 
 public class UserNotFoundException extends RuntimeException{
     public UserNotFoundException(String name) {

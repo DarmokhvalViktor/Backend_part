@@ -1,7 +1,7 @@
 package com.darmokhval.Backend_part.controller;
 
-import com.darmokhval.Backend_part.dto.TestContainerDTO;
-import com.darmokhval.Backend_part.errors.TestContainerNotFoundException;
+import com.darmokhval.Backend_part.models.dto.TestContainerDTO;
+import com.darmokhval.Backend_part.exceptions.TestContainerNotFoundException;
 import com.darmokhval.Backend_part.services.TestContainerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

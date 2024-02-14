@@ -1,4 +1,4 @@
-package com.darmokhval.Backend_part.dto.Authentication.request;
+package com.darmokhval.Backend_part.models.dto.Authentication.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +11,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignupRequest {
+public class SignupRequestDTO{
 //    @NotBlank
 //    @Size(min = 3, max = 30)
 //    private String name;
@@ -30,4 +30,5 @@ public class SignupRequest {
     private String password;
 
     private Set<String> role;
+
 }

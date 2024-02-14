@@ -1,4 +1,4 @@
-package com.darmokhval.Backend_part.entity;
+package com.darmokhval.Backend_part.models.entity;
 
 public enum ERole {
     ROLE_USER("ROLE_USER"),

@@ -1,95 +1,44 @@
 package com.darmokhval.Backend_part.controller;
 
-import com.darmokhval.Backend_part.config.jwt.JwtUtils;
-import com.darmokhval.Backend_part.dto.Authentication.request.LoginRequestDTO;
-import com.darmokhval.Backend_part.dto.Authentication.request.SignupRequest;
-import com.darmokhval.Backend_part.dto.Authentication.response.JwtResponse;
-import com.darmokhval.Backend_part.dto.Authentication.response.MessageResponse;
-import com.darmokhval.Backend_part.entity.ERole;
-import com.darmokhval.Backend_part.entity.User;
-import com.darmokhval.Backend_part.repository.RoleRepository;
-import com.darmokhval.Backend_part.repository.UserRepository;
-import com.darmokhval.Backend_part.security.MyCustomUserDetails;
+import com.darmokhval.Backend_part.models.dto.Authentication.request.JwtRefreshRequest;
+import com.darmokhval.Backend_part.models.dto.Authentication.request.LoginRequestDTO;
+import com.darmokhval.Backend_part.models.dto.Authentication.request.SignupRequestDTO;
+import com.darmokhval.Backend_part.models.dto.Authentication.response.JwtResponse;
+import com.darmokhval.Backend_part.models.dto.Authentication.response.JwtTokenResponse;
+import com.darmokhval.Backend_part.services.AuthorizationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private AuthenticationManager authenticationManager;
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private PasswordEncoder passwordEncoder;
-    private JwtUtils jwtUtils;
+    private final AuthorizationService authorizationService;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          PasswordEncoder passwordEncoder, RoleRepository roleRepository, JwtUtils jwtUtils) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
-        this.jwtUtils = jwtUtils;
+    public AuthController(AuthorizationService authorizationService) {
+        this.authorizationService = authorizationService;
     }
+
+    //TODO DO I really need to expose so much information, or stick only with token as a response?
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        MyCustomUserDetails customUserDetails = (MyCustomUserDetails) authentication.getPrincipal();
-        List<ERole> roles = customUserDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .map(ERole::valueOf)
-                .toList();
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                customUserDetails.getId(),
-                customUserDetails.getUsername(),
-                customUserDetails.getEmail(),
-                roles));
-
-//        return new ResponseEntity<>("User login successfully.", HttpStatus.OK);
+        JwtTokenResponse jwtTokenResponse = authorizationService.authenticateUser(loginRequestDTO);
+        return ResponseEntity.ok(jwtTokenResponse);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
-//        check if username exists in database
-        if(userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Username is already taken!"));
-        }
-//        check if email exists in database
-        if(userRepository.existsByEmail(signupRequest.getEmail())) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Email is already taken!"));
-        }
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequestDTO signupRequestDTO) {
+        JwtTokenResponse jwtTokenResponse = authorizationService.registerUser(signupRequestDTO);
+        return ResponseEntity.ok(jwtTokenResponse);
+    }
 
-//        create new user's account
-//        not assigning yearOfBirth
-        User user = new User(signupRequest.getUsername(),
-                signupRequest.getEmail(),
-                passwordEncoder.encode(signupRequest.getPassword()));
-
-        user.setRole(ERole.ROLE_USER);
-
-
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
-
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody JwtRefreshRequest refreshRequest) {
+        JwtTokenResponse jwtTokenResponse = authorizationService.refresh(refreshRequest);
+        return ResponseEntity.ok(jwtTokenResponse);
     }
 }
