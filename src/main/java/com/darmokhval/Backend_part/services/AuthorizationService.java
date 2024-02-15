@@ -1,14 +1,10 @@
 package com.darmokhval.Backend_part.services;
 
 import com.darmokhval.Backend_part.config.jwt.JwtUtils;
-import com.darmokhval.Backend_part.exceptions.RefreshTokenHasExpired;
-import com.darmokhval.Backend_part.exceptions.EmailAlreadyTaken;
-import com.darmokhval.Backend_part.exceptions.UsernameAlreadyTaken;
-import com.darmokhval.Backend_part.models.dto.Authentication.request.BasicRequestDTO;
+import com.darmokhval.Backend_part.exceptions.*;
 import com.darmokhval.Backend_part.models.dto.Authentication.request.JwtRefreshRequest;
 import com.darmokhval.Backend_part.models.dto.Authentication.request.LoginRequestDTO;
 import com.darmokhval.Backend_part.models.dto.Authentication.request.SignupRequestDTO;
-import com.darmokhval.Backend_part.models.dto.Authentication.response.JwtResponse;
 import com.darmokhval.Backend_part.models.dto.Authentication.response.JwtTokenResponse;
 import com.darmokhval.Backend_part.models.entity.ERole;
 import com.darmokhval.Backend_part.models.entity.User;
@@ -18,37 +14,49 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthorizationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthorizationService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
+    public AuthorizationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
-        this.customUserDetailsService = customUserDetailsService;
+        this.authenticationManager = authenticationManager;
     }
 
 
     public JwtTokenResponse authenticateUser(LoginRequestDTO loginRequestDTO) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
+        Optional<User> user = userRepository.findByUsername(loginRequestDTO.getUsername());
+        if(user.isEmpty()) {
+            throw new UserNotFoundException(loginRequestDTO.getUsername());
+        }
 
-        String accessToken = jwtUtils.generateAccessToken(authentication);
-        String refreshToken = jwtUtils.generateRefreshToken(authentication);
-        return new JwtTokenResponse(accessToken, refreshToken);
+//        TODO not working, error with authentication, when trying to login as admin.
+//        List<GrantedAuthority> role = Collections.singletonList(new SimpleGrantedAuthority(user.get().getRole().getRole()));
+//        Authentication authenticatedUser = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+//                user.get().getUsername(),
+//                user.get().getPassword(),
+//                role));
+//        SecurityContext context = SecurityContextHolder.createEmptyContext();
+//        context.setAuthentication(authenticatedUser);
+//        SecurityContextHolder.setContext(context);
+
+        return createJwtTokenResponse(user.get());
     }
 
     public JwtTokenResponse registerUser(SignupRequestDTO signupRequestDTO) {
@@ -60,11 +68,6 @@ public class AuthorizationService {
         if(userRepository.existsByEmail(signupRequestDTO.getEmail())) {
             throw new EmailAlreadyTaken(signupRequestDTO.getEmail());
         }
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                signupRequestDTO.getUsername(), signupRequestDTO.getPassword()));
-
-        String accessToken = jwtUtils.generateAccessToken(authentication);
-        String refreshToken = jwtUtils.generateRefreshToken(authentication);
 //        create new user's account
         User user = new User(signupRequestDTO.getUsername(),
                 signupRequestDTO.getEmail(),
@@ -72,6 +75,12 @@ public class AuthorizationService {
 
         user.setRole(ERole.ROLE_USER);
         userRepository.save(user);
+        MyCustomUserDetails userDetails = new MyCustomUserDetails(
+                user.getUsername(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getRole())));
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
 
         return new JwtTokenResponse(accessToken, refreshToken);
     }
@@ -82,60 +91,26 @@ public class AuthorizationService {
         if(refreshTokenExpiration.before(new Date())) {
             throw new RefreshTokenHasExpired();
         }
-        String username = jwtUtils.getUserNameFromJwtToken(requestRefreshToken);
-//        Why cast to MyCustomUserDetails, if it implements UserDetails interface?
-        //Throws error??? Bad credentials, password does not match stored value? TODO not sure about this code
-        MyCustomUserDetails customUserDetails = (MyCustomUserDetails) customUserDetailsService.loadUserByUsername(username);
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                customUserDetails.getUsername(), customUserDetails.getPassword()));
+        if(!jwtUtils.isRefreshToken(requestRefreshToken)) {
+            throw new InvalidRefreshTokenSignature();
+        }
 
-        String accessToken = jwtUtils.generateAccessToken(authentication);
-        String refreshToken = jwtUtils.generateRefreshToken(authentication);
+        String usernameFromToken = jwtUtils.getUserNameFromJwtToken(refreshRequest.getRefreshToken());
+        Optional<User> user = userRepository.findByUsername(usernameFromToken);
+        if(user.isEmpty()) {
+            throw new UserNotFoundException(usernameFromToken);
+        }
+        return createJwtTokenResponse(user.get());
+    }
+
+    private JwtTokenResponse createJwtTokenResponse(User user) {
+        MyCustomUserDetails userDetails = new MyCustomUserDetails(
+                user.getUsername(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getRole())));
+
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
         return new JwtTokenResponse(accessToken, refreshToken);
     }
-//
-//
-//    private Map<String, String> createTokenPairAndRole(LoginRequestDTO loginRequestDTO) {
-//        //        What am I comparing? Did I put some user inside context already?
-////        Might be that work in filter TODO check
-//        //        Do i need to set this into context? TODO check if so
-//        //SecurityContextHolder.getContext().setAuthentication(authentication);
-//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-//                loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
-//        String accessToken = jwtUtils.generateAccessToken(authentication);
-//        String refreshToken = jwtUtils.generateRefreshToken(authentication);
-//
-////        TODO might be bad thing transforming to role
-//        MyCustomUserDetails customUserDetails = (MyCustomUserDetails) authentication.getPrincipal();
-//        String role = customUserDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .toString();
-//
-////        Maybe better way to save this?
-//        return Map.of("access", accessToken,
-//                "refresh",refreshToken,
-//                "role", role,
-//                "id", customUserDetails.getId().toString(),
-//                "username", customUserDetails.getUsername(),
-//                "email", customUserDetails.getEmail());
-//    }
-//    private Map<String, String> createTokenPairAndRole(SignupRequestDTO signupRequestDTO) {
-//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-//                signupRequestDTO.getUsername(), signupRequestDTO.getPassword()));
-//        String accessToken = jwtUtils.generateAccessToken(authentication);
-//        String refreshToken = jwtUtils.generateRefreshToken(authentication);
-//
-//        MyCustomUserDetails customUserDetails = (MyCustomUserDetails) authentication.getPrincipal();
-//        String role = customUserDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .toString();
-//        return Map.of("access", accessToken,
-//                "refresh",refreshToken,
-//                "role", role,
-//                "id", customUserDetails.getId().toString(),
-//                "username", customUserDetails.getUsername(),
-//                "email", customUserDetails.getEmail());
-//    }
-
-
 }

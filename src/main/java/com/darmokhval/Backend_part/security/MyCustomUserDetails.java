@@ -35,6 +35,12 @@ public class MyCustomUserDetails implements UserDetails {
         this.authorities = authorities;
     }
 
+    public MyCustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
+    }
+
     public static MyCustomUserDetails build(User user) {
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
         return new MyCustomUserDetails(

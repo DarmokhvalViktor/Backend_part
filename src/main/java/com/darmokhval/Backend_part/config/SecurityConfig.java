@@ -77,8 +77,8 @@ public class SecurityConfig {
 //                .cors(CorsConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/**", "/swagger-ui/**", "/docs", "/test/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/auth/**", "/swagger-ui/**", "/docs", "/test/**", "/error").permitAll()
                                 .anyRequest().authenticated());
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJWTTokenFilter(jwtUtils, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);

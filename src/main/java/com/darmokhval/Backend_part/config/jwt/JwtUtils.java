@@ -1,16 +1,14 @@
 package com.darmokhval.Backend_part.config.jwt;
 
 
-import com.darmokhval.Backend_part.models.entity.ERole;
-import com.darmokhval.Backend_part.security.MyCustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -30,32 +28,32 @@ public class JwtUtils {
     @Value("${darmokhval.app.jwtRefreshTokenExpirationMs}")
     private int jwtRefreshTokenExpirationMs;
 
-    public String generateAccessToken(Authentication authentication) {
-        MyCustomUserDetails userPrincipal = (MyCustomUserDetails) authentication.getPrincipal();
-        List<String> roles = userPrincipal
-                .getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
+    public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
-                .subject(userPrincipal.getUsername())
-                .claims(Map.of("roles", roles))
+                .subject(userDetails.getUsername())
+                .claims(Map.of("roles", getRoles(userDetails)))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtAccessTokenExpirationMs))
                 .signWith(key())
                 .compact();
     }
 
-    public String generateRefreshToken(Authentication authentication) {
-        MyCustomUserDetails userPrincipal = (MyCustomUserDetails) authentication.getPrincipal();
+    public String generateRefreshToken(UserDetails userDetails) {
         return Jwts.builder()
-                .subject(userPrincipal.getUsername())
-                .claims(Map.of("type", "refresh"))
+                .subject(userDetails.getUsername())
+                .claims(Map.of("type", "refresh", "roles", getRoles(userDetails)))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtRefreshTokenExpirationMs))
                 .signWith(key())
                 .compact();
+    }
+
+    private List<String> getRoles(UserDetails userDetails) {
+        return userDetails
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
     }
 
     private SecretKey key() {

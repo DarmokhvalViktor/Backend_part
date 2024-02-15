@@ -1,6 +1,7 @@
 package com.darmokhval.Backend_part.controller;
 
 import com.darmokhval.Backend_part.exceptions.EmailAlreadyTaken;
+import com.darmokhval.Backend_part.exceptions.InvalidRefreshTokenSignature;
 import com.darmokhval.Backend_part.exceptions.UsernameAlreadyTaken;
 import com.darmokhval.Backend_part.models.dto.Authentication.response.ErrorDTO;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,16 @@ public class CustomErrorHandler {
     }
     @ExceptionHandler({EmailAlreadyTaken.class})
     public ResponseEntity<ErrorDTO> handleEmailAlreadyTakenException(EmailAlreadyTaken exception) {
+        String details = exception.getMessage();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorDTO.builder()
+                        .timestamp(System.currentTimeMillis())
+                        .details(details)
+                        .build());
+    }
+    @ExceptionHandler({InvalidRefreshTokenSignature.class})
+    public ResponseEntity<ErrorDTO> handleInvalidRefreshTokenSignature(InvalidRefreshTokenSignature exception) {
         String details = exception.getMessage();
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
