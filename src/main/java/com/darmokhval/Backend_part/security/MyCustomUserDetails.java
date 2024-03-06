@@ -1,6 +1,6 @@
 package com.darmokhval.Backend_part.security;
 
-import com.darmokhval.Backend_part.models.entity.User;
+import com.darmokhval.Backend_part.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -3,8 +3,11 @@ target/
 mysql_database
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-!**/src/test/**/target/
+!**/src/sentence/**/target/
 mysql_database.rar
+
+!**/src/main/resources/secrets.yml
+secrets.yml
 
 ### STS ###
 .apt_generated
@@ -29,7 +32,7 @@ mysql_database.rar
 /.nb-gradle/
 build/
 !**/src/main/**/build/
-!**/src/test/**/build/
+!**/src/sentence/**/build/
 
 ### VS Code ###
 .vscode/

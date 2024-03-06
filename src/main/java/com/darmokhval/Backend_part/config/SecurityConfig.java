@@ -3,8 +3,15 @@ package com.darmokhval.Backend_part.config;
 import com.darmokhval.Backend_part.config.jwt.AuthEntryPointJwt;
 import com.darmokhval.Backend_part.config.jwt.AuthTokenFilter;
 import com.darmokhval.Backend_part.config.jwt.JwtUtils;
-import com.darmokhval.Backend_part.services.CustomUserDetailsService;
+import com.darmokhval.Backend_part.repository.UserRepository;
+import com.darmokhval.Backend_part.service.CustomUserDetailsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,26 +26,25 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Base64;
+import java.util.Map;
 
 //@EnableMethodSecurity - this annotation to provide security to method-level security in application, websecurity-all application
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-    private CustomUserDetailsService customUserDetailsService;
-    private AuthEntryPointJwt unauthorizedHandler;
-    private JwtUtils jwtUtils;
-
-
-    @Autowired
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService, AuthEntryPointJwt authEntryPointJwt,
-                          JwtUtils jwtUtils) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.unauthorizedHandler = authEntryPointJwt;
-        this.jwtUtils = jwtUtils;
-    }
+    private final CustomUserDetailsService customUserDetailsService;
+    private final AuthEntryPointJwt unauthorizedHandler;
+    private final JwtUtils jwtUtils;
+    private final UserRepository userRepository;
 
     @Bean
     public AuthTokenFilter authenticationJWTTokenFilter(JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
@@ -55,8 +61,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() throws Exception {
+        return new CustomAuthenticationManager(userRepository, passwordEncoder());
     }
 
     @Bean
@@ -72,14 +78,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-//                .csrf(AbstractHttpConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
-//                .cors(CorsConfigurer::disable)
+                .cors(CorsConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/**", "/swagger-ui/**", "/docs", "/test/**", "/error").permitAll()
-                                .anyRequest().authenticated());
+                                .requestMatchers("/auth/**", "/html/**",
+                                        "/swagger-ui/**", "/docs", "/test/**", "/error", "/").permitAll()
+                                .anyRequest().permitAll());
+//        TODO don't forget to turn on security after work with frontend
+//                                .anyRequest().authenticated());
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJWTTokenFilter(jwtUtils, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();

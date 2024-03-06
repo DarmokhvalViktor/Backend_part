@@ -31,7 +31,7 @@ public class JwtUtils {
     public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
-                .claims(Map.of("roles", getRoles(userDetails)))
+                .claims(Map.of("roles", getRoles(userDetails), "iss", "Backend-part"))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtAccessTokenExpirationMs))
                 .signWith(key())
@@ -41,7 +41,7 @@ public class JwtUtils {
     public String generateRefreshToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
-                .claims(Map.of("type", "refresh", "roles", getRoles(userDetails)))
+                .claims(Map.of("type", "refresh", "roles", getRoles(userDetails), "iss", "Backend-part"))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtRefreshTokenExpirationMs))
                 .signWith(key())
@@ -85,6 +85,9 @@ public class JwtUtils {
     }
     public boolean isRefreshToken(String token) {
         return resolveClaim(token, claims -> Objects.equals(claims.get("type", String.class), "refresh"));
+    }
+    public boolean isMyCustomJWT(String token) {
+        return resolveClaim(token, claims -> Objects.equals(claims.get("iss", String.class), "Backend-part"));
     }
     public Date extractExpiration(String token) {
         return resolveClaim(token, Claims::getExpiration);

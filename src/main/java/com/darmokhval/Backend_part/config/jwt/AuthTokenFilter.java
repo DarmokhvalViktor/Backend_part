@@ -1,16 +1,18 @@
 package com.darmokhval.Backend_part.config.jwt;
 
 
-import com.darmokhval.Backend_part.services.CustomUserDetailsService;
+import com.darmokhval.Backend_part.service.CustomUserDetailsService;
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,16 +28,11 @@ import java.io.IOException;
  * So we create AuthTokenFilter class that extends OncePerRequestFilter and override doFilterInternal() method.
  */
 @Component
+@RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
-    private JwtUtils jwtUtils;
-    private CustomUserDetailsService customUserDetailsService;
+    private final JwtUtils jwtUtils;
+    private final CustomUserDetailsService customUserDetailsService;
     private final static Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
-
-    @Autowired
-    public AuthTokenFilter(JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
-        this.jwtUtils = jwtUtils;
-        this.customUserDetailsService = customUserDetailsService;
-    }
 
     /**
      * What we do inside doFilterInternal():
@@ -52,14 +49,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException, AuthenticationException {
 
         try {
             String token = parseJwt(request);
-//            Should add to validateJwtToken cause if token is refresh?
-            if(token != null && !jwtUtils.isRefreshToken(token) && jwtUtils.validateJwtToken(token)) {
+            if(token != null && !jwtUtils.isRefreshToken(token) && jwtUtils.validateJwtToken(token) && jwtUtils.isMyCustomJWT(token)) {
                 String username = jwtUtils.getUserNameFromJwtToken(token);
-//                TODO invoking when signup? looking for a user in database, why? Wanted to only register. Not sure if the error is here
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
                 UsernamePasswordAuthenticationToken authenticationToken =
@@ -69,7 +64,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
                 securityContext.setAuthentication(authenticationToken);
                 SecurityContextHolder.setContext(securityContext);
-
 //                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         } catch (Exception e) {

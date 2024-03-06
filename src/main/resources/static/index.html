@@ -1,0 +1,29 @@
+<h1>This is the frontend part of my application</h1>
+
+<p id="counter">0</p>
+<button onclick="counter()">PUSH ME!!!!!!</button>
+<div id="result"></div>
+
+<script>
+    function counter() {
+        let counterElem = document.getElementById("counter");
+        let currCounter = parseInt(counterElem.innerHTML);
+        let newCounter = currCounter + 1;
+        counterElem.innerHTML = newCounter.toString();
+    }
+
+    fetch("/tests").then(response => {return response.json()}).then(data => {displayData(data)});
+    function displayData(data) {
+        let resultDiv = document.getElementById("result");
+
+        data.forEach(worksheet => {
+            console.log(worksheet.sentences);
+            let worksheetDiv = document.createElement("div");
+            worksheetDiv.textContent = `Title: ${worksheet.title}, classYear: ${worksheet.classYear},
+            subject: ${worksheet.subject}, instruction: ${worksheet.instruction}, worksheetId: ${worksheet.worksheetId},
+            sentenceId: ${worksheet.sentences[0].sentenceId}`;
+            resultDiv.appendChild(worksheetDiv);
+        })
+    }
+
+</script>
