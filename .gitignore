@@ -5,6 +5,8 @@ mysql_database
 !**/src/main/**/target/
 !**/src/sentence/**/target/
 mysql_database.rar
+backend
+client
 
 !**/src/main/resources/secrets.yml
 secrets.yml

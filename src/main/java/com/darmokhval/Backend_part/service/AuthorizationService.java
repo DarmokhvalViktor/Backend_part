@@ -2,10 +2,12 @@ package com.darmokhval.Backend_part.service;
 
 import com.darmokhval.Backend_part.config.jwt.JwtUtils;
 import com.darmokhval.Backend_part.exception.*;
+import com.darmokhval.Backend_part.mapper.MainMapper;
 import com.darmokhval.Backend_part.model.dto.Authentication.request.JwtRefreshRequest;
 import com.darmokhval.Backend_part.model.dto.Authentication.request.LoginRequestDTO;
 import com.darmokhval.Backend_part.model.dto.Authentication.request.SignupRequestDTO;
 import com.darmokhval.Backend_part.model.dto.Authentication.response.JwtTokenResponse;
+import com.darmokhval.Backend_part.model.dto.Authentication.response.UserDetailsResponseDTO;
 import com.darmokhval.Backend_part.model.entity.ERole;
 import com.darmokhval.Backend_part.model.entity.User;
 import com.darmokhval.Backend_part.repository.UserRepository;
@@ -26,6 +28,7 @@ public class AuthorizationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final MainMapper mainMapper;
 
     public JwtTokenResponse authenticateUser(LoginRequestDTO loginRequestDTO) {
         Optional<User> user = userRepository.findByUsername(loginRequestDTO.getUsername());
@@ -77,6 +80,14 @@ public class AuthorizationService {
             throw new UserNotFoundException(usernameFromToken);
         }
         return createJwtTokenResponse(user.get());
+    }
+
+    public UserDetailsResponseDTO getUserDetails(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if(user.isEmpty()) {
+            throw new UserNotFoundException(username);
+        }
+        return mainMapper.convertUserToDTO(user.get());
     }
 
     private JwtTokenResponse createJwtTokenResponse(User user) {
