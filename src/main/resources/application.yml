@@ -2,14 +2,14 @@ spring:
   config:
     import: classpath:secrets.yml
   datasource:
-    url: ${mySQL.url}
-    username: ${mySQL.username}
-    password: ${mySQL.password}
+#    url: ${mySQL.url}
+#    username: ${mySQL.username}
+#    password: ${mySQL.password}
 
 #    docker settings for MySQL:
-#    url: ${dockerMySQL.url}
-#    username: ${dockerMySQL.username}
-#    password: ${dockerMySQL.password}
+    url: ${dockerMySQL.url}
+    username: ${dockerMySQL.username}
+    password: ${dockerMySQL.password}
 
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:

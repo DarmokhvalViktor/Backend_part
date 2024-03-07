@@ -1,30 +1,43 @@
-version: "3.8"
+version: "3.9"
 
 services:
 
-  mysql:
+  mydb:
     image: mysql:8-oracle
-    env_file:
-      - .env.mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=mysqldocker
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=user
     volumes:
       - ./mysql_database:/var/lib/mysql
     ports:
       - "3306:3306"
     restart: on-failure
 
-    healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      timeout: 2s
-      retries: 2
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+#      timeout: 2s
+#      retries: 2
 
-  backend-part:
-    depends_on:
-      - mysql
-#      mysql:
-#        condition: service_healthy
+  app:
+#    depends_on:
+#      - mydb
     image: test_demo
     build:
       context: .
-    ports:
-      - "8080:8080"
+#    ports:
+#      - "8080:8080"
+    volumes:
+      - ./backend:/app
     restart: on-failure
+    command: >
+      sh -c "/wait-for-it.sh mydb:3306 -- java -jar app.jar"
+
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./client:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
