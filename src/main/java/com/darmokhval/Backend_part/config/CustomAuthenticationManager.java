@@ -15,9 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * TODO check if used
- */
 public class CustomAuthenticationManager implements AuthenticationManager {
 
     UserRepository userRepo;

@@ -15,14 +15,7 @@ services:
       - "3306:3306"
     restart: on-failure
 
-#    healthcheck:
-#      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-#      timeout: 2s
-#      retries: 2
-
   app:
-#    depends_on:
-#      - mydb
     image: test_demo
     build:
       context: .

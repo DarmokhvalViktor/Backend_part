@@ -28,6 +28,14 @@
 		</backend-part-service-openapi-spec.path>
 		<api-package>org.darmokhval.springtest.backend-part</api-package>
 
+		<localhost-db-url>jdbc:mysql://localhost:3306/test</localhost-db-url>
+		<localhost-password>"!P@$$word1995"</localhost-password>
+		<localhost-username>root</localhost-username>
+
+		<docker-db-url>jdbc:mysql://localhost:3306/mysqldocker</docker-db-url>
+		<docker-password>user</docker-password>
+		<docker-username>user</docker-username>
+
 	</properties>
 	<dependencies>
 		<dependency>
@@ -137,6 +145,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>10.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-mysql</artifactId>
+			<version>10.10.0</version>
+		</dependency>
 
 
 	</dependencies>
@@ -229,6 +247,17 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>10.10.0</version>
+				<configuration>
+					<url>${docker-db-url}</url>
+					<user>${docker-username}</user>
+					<password>${docker-password}</password>
+				</configuration>
 			</plugin>
 
 		</plugins>

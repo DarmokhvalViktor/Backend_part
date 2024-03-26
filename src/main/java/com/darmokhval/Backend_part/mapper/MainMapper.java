@@ -5,16 +5,20 @@ import com.darmokhval.Backend_part.model.dto.Authentication.response.UserDetails
 import com.darmokhval.Backend_part.model.dto.SentenceDTO;
 import com.darmokhval.Backend_part.model.dto.WorksheetDTO;
 import com.darmokhval.Backend_part.model.entity.User;
-import com.darmokhval.Backend_part.model.entity.tests.Answer;
-import com.darmokhval.Backend_part.model.entity.tests.Sentence;
-import com.darmokhval.Backend_part.model.entity.tests.Worksheet;
+import com.darmokhval.Backend_part.model.entity.tests.*;
+import com.darmokhval.Backend_part.repository.QuestionTypeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class MainMapper {
+    private final QuestionTypeRepository questionTypeRepository;
 
     public UserDetailsResponseDTO convertUserToDTO(User user) {
         UserDetailsResponseDTO userDTO = new UserDetailsResponseDTO();
@@ -33,7 +37,7 @@ public class MainMapper {
         testContainerDTO.setInstruction(worksheet.getInstruction());
         testContainerDTO.setSubject(worksheet.getSubject());
         List<SentenceDTO> sentenceDTOList = new ArrayList<>();
-        for(Sentence sentence : worksheet.getSentences()) {
+        for (Sentence sentence : worksheet.getSentences()) {
             SentenceDTO sentenceDTO = convertSentenceToDTO(sentence);
             sentenceDTOList.add(sentenceDTO);
         }
@@ -49,7 +53,7 @@ public class MainMapper {
         worksheet.setSubject(testContainerDTO.getSubject());
         List<Sentence> sentences = new ArrayList<>();
 
-        for(SentenceDTO test: testContainerDTO.getSentences()) {
+        for (SentenceDTO test : testContainerDTO.getSentences()) {
             Sentence sentence2 = convertSentenceDTOToEntity(test);
             sentence2.setWorksheet(worksheet);
             sentences.add(sentence2);
@@ -62,12 +66,17 @@ public class MainMapper {
         SentenceDTO sentenceDTO = new SentenceDTO();
         sentenceDTO.setContent(sentence.getContent());
         sentenceDTO.setSentenceId(sentence.getSentenceId());
+        Optional<QuestionType> questionType = Optional.ofNullable(sentence.getQuestionType());
+        questionType.ifPresentOrElse(
+                qType -> sentenceDTO.setQuestionTypeId(qType.getId()),
+                () -> {
+                    sentenceDTO.setQuestionTypeId(3L);
+                }
+        );
 
-        List<AnswerDTO> answerDTOS = new ArrayList<>();
-        for(Answer answer: sentence.getAnswers()) {
-            AnswerDTO answerDTO = convertAnswerToDTO(answer);
-            answerDTOS.add(answerDTO);
-        }
+        List<AnswerDTO> answerDTOS = sentence.getAnswers().stream()
+                .map(this::convertAnswerToDTO)
+                .toList();
         sentenceDTO.setAnswers(answerDTOS);
         return sentenceDTO;
     }
@@ -75,13 +84,29 @@ public class MainMapper {
     private Sentence convertSentenceDTOToEntity(SentenceDTO sentenceDTO) {
         Sentence sentence = new Sentence();
         sentence.setContent(sentenceDTO.getContent());
-        List<Answer> answerList = new ArrayList<>();
+        Optional<Long> questionTypeId = Optional.ofNullable(sentenceDTO.getQuestionTypeId());
+        if (questionTypeId.isPresent()) {
+            Optional<QuestionType> optionalQuestionType = questionTypeRepository.findById(questionTypeId.get());
 
-        for (AnswerDTO answer: sentenceDTO.getAnswers()) {
-            Answer answer2 = convertAnswerDTOToEntity(answer);
-            answer2.setSentence(sentence);
-            answerList.add(answer2);
+            optionalQuestionType.ifPresentOrElse(
+                    sentence::setQuestionType,
+                    () -> {
+                        sentence.setQuestionType(questionTypeRepository.findByType(EQuestionType.FILL_BLANK)
+                                .orElseThrow(() -> new IllegalStateException("FILL_BLANK question type not found")));
+                    }
+            );
+        } else {
+            sentence.setQuestionType(questionTypeRepository.findByType(EQuestionType.FILL_BLANK)
+                    .orElseThrow(() -> new IllegalStateException("FILL_BLANK question type not found")));
         }
+
+        List<Answer> answerList = sentenceDTO.getAnswers().stream()
+                .map(answerDTO -> {
+                    Answer answer = convertAnswerDTOToEntity(answerDTO);
+                    answer.setSentence(sentence);
+                    return answer;
+                })
+                .toList();
         sentence.setAnswers(answerList);
 
         return sentence;
@@ -102,8 +127,6 @@ public class MainMapper {
         answer.setIsCorrect(answerDTO.getIsCorrect());
         return answer;
     }
-
-
 
 
 }

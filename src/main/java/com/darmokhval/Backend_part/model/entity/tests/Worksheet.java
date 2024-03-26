@@ -1,7 +1,5 @@
 package com.darmokhval.Backend_part.model.entity.tests;
 
-import com.darmokhval.Backend_part.model.dto.SentenceDTO;
-import com.darmokhval.Backend_part.model.dto.WorksheetDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -30,7 +28,6 @@ public class Worksheet {
     @Size(min = 1, max = 150, message = "field should contain minimum - 1, maximum - 150 characters")
     private String instruction;
 
-    @Column(name = "class")
     @NotEmpty(message = "field `grade` should not be empty")
     @Size(min = 1, max = 12)
     private String classYear;

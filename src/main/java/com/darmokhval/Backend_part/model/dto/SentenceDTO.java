@@ -14,5 +14,6 @@ import java.util.List;
 public class SentenceDTO {
     private Integer sentenceId;
     private String content;
+    private Long questionTypeId;
     private List<AnswerDTO> answers;
 }

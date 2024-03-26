@@ -34,6 +34,10 @@ public class CustomErrorHandler {
     public ResponseEntity<ErrorDTO> handleUserNotFoundExceptionException(UserNotFoundException exception) {
         return createResponse(exception);
     }
+    @ExceptionHandler({InvalidPasswordException.class})
+    public ResponseEntity<ErrorDTO> handleInvalidPasswordException(InvalidPasswordException exception) {
+        return createResponse(exception);
+    }
 
     private ResponseEntity<ErrorDTO> createResponse(Exception exception) {
         String details = exception.getMessage();

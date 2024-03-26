@@ -5,35 +5,21 @@ import com.darmokhval.Backend_part.config.jwt.AuthTokenFilter;
 import com.darmokhval.Backend_part.config.jwt.JwtUtils;
 import com.darmokhval.Backend_part.repository.UserRepository;
 import com.darmokhval.Backend_part.service.CustomUserDetailsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.Base64;
-import java.util.Map;
 
 //@EnableMethodSecurity - this annotation to provide security to method-level security in application, websecurity-all application
 @Configuration
@@ -84,10 +70,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/auth/**", "/html/**",
-                                        "/swagger-ui/**", "/docs", "/test/**", "/error", "/").permitAll()
-                                .anyRequest().permitAll());
-//        TODO don't forget to turn on security after work with frontend
-//                                .anyRequest().authenticated());
+                                        "/swagger-ui/**", "/docs", "/error", "/").permitAll()
+                                .anyRequest().authenticated());
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJWTTokenFilter(jwtUtils, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();

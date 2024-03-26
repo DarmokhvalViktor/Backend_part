@@ -13,7 +13,6 @@ import com.darmokhval.Backend_part.model.entity.User;
 import com.darmokhval.Backend_part.repository.UserRepository;
 import com.darmokhval.Backend_part.security.MyCustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,12 +29,13 @@ public class AuthorizationService {
     private final JwtUtils jwtUtils;
     private final MainMapper mainMapper;
 
-    public JwtTokenResponse authenticateUser(LoginRequestDTO loginRequestDTO) {
-        Optional<User> user = userRepository.findByUsername(loginRequestDTO.getUsername());
-        if(user.isEmpty()) {
-            throw new UserNotFoundException(loginRequestDTO.getUsername());
+    public JwtTokenResponse loginUser(LoginRequestDTO loginRequestDTO) {
+        User user = userRepository.findByUsername(loginRequestDTO.getUsername())
+                .orElseThrow(() -> new UserNotFoundException(loginRequestDTO.getUsername()));
+        if(!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("Invalid password");
         }
-        return createJwtTokenResponse(user.get());
+        return createJwtTokenResponse(user);
     }
 
     public JwtTokenResponse registerUser(SignupRequestDTO signupRequestDTO) {
@@ -53,15 +53,8 @@ public class AuthorizationService {
                 passwordEncoder.encode(signupRequestDTO.getPassword()));
 
         user.setRole(ERole.ROLE_USER);
-        userRepository.save(user);
-        MyCustomUserDetails userDetails = new MyCustomUserDetails(
-                user.getUsername(),
-                user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getRole())));
-        String accessToken = jwtUtils.generateAccessToken(userDetails);
-        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-
-        return new JwtTokenResponse(accessToken, refreshToken);
+        user = userRepository.save(user);
+        return createJwtTokenResponse(user);
     }
 
     public JwtTokenResponse refresh(JwtRefreshRequest refreshRequest) {

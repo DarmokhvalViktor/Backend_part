@@ -20,7 +20,7 @@ public class Sentence {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sentenceId;
 
-    @Column(name = "contet")
+    @Column(name = "content")
     @NotEmpty(message = "field `taskSentence` should not be empty")
     @Size(min = 10, max = 300, message = "field should contain minimum - 10, maximum - 300 characters")
     private String content;
@@ -28,8 +28,12 @@ public class Sentence {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "sentence")
     private List<Answer> answers;
 
-    @ManyToOne()
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "worksheet_id")
     private Worksheet worksheet;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "question_type_id")
+    private QuestionType questionType;
 
 }

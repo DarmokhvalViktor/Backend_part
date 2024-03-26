@@ -1,26 +1,29 @@
 package com.darmokhval.Backend_part.service;
 
+import com.darmokhval.Backend_part.exception.WorksheetNotFoundException;
 import com.darmokhval.Backend_part.mapper.MainMapper;
 import com.darmokhval.Backend_part.model.dto.WorksheetDTO;
-import com.darmokhval.Backend_part.exception.WorksheetNotFoundException;
-import com.darmokhval.Backend_part.model.entity.tests.Worksheet;
+import com.darmokhval.Backend_part.model.entity.tests.*;
+import com.darmokhval.Backend_part.repository.QuestionTypeRepository;
 import com.darmokhval.Backend_part.repository.WorksheetRepository;
 import com.darmokhval.Backend_part.repository.WorksheetSpecification;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class WorksheetService {
 
     private final WorksheetRepository worksheetRepository;
+    private final QuestionTypeRepository questionTypeRepository;
     private final MainMapper mainMapper;
 
 
@@ -80,6 +83,10 @@ public class WorksheetService {
         WorksheetDTO deletedWorksheet = getWorksheetById(id);
         worksheetRepository.deleteById(id);
         return deletedWorksheet;
+    }
+
+    public List<QuestionType> getAllQuestionTypes() {
+        return questionTypeRepository.findAll();
     }
 
 }
