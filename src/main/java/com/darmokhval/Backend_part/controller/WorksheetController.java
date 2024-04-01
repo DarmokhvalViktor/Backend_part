@@ -41,7 +41,7 @@ public class WorksheetController {
     }
 
     @DeleteMapping("worksheets/{id}")
-    public ResponseEntity<WorksheetDTO> deleteTest(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteTest(@PathVariable Integer id) {
         return  new ResponseEntity<>(worksheetService.deleteWorksheet(id), HttpStatus.OK);
     }
 

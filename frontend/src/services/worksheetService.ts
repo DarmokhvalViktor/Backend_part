@@ -14,6 +14,12 @@ const worksheetService = {
     },
     createWorksheet(worksheet: IWorksheet):IRes<any> {
         return apiService.post("worksheets", worksheet);
+    },
+    updateWorksheet(worksheet: IWorksheet, id: number):IRes<IWorksheet> {
+        return apiService.put(`worksheets/${id}`, worksheet);
+    },
+    deleteWorksheet(worksheetId: number): Promise<IWorksheet> {
+        return apiService.delete(`worksheets/${worksheetId}`)
     }
 }
 export {

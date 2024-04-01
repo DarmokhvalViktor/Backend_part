@@ -1,4 +1,4 @@
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {IWorksheet} from "../../interfaces/IWorksheetResponse";
 import {worksheetService} from "../../services/worksheetService";
@@ -6,6 +6,8 @@ import {worksheetService} from "../../services/worksheetService";
 const WorksheetDetails = () => {
     const location = useLocation();
     const worksheetId:number = location.state.worksheetId
+    const navigate = useNavigate();
+
 
     const [worksheet, setWorksheet] = useState<IWorksheet>();
     useEffect(() => {
@@ -14,6 +16,29 @@ const WorksheetDetails = () => {
             setWorksheet(data);
         })
     }, [worksheetId])
+
+
+    const handleDelete = async () => {
+        const deletedWorksheet = await worksheetService.deleteWorksheet(worksheet.worksheetId);
+        console.log(deletedWorksheet);
+        navigate("/worksheets");
+    };
+    const handleUpdate = async () => {
+        navigate(`/createOrUpdateWorksheet/${worksheetId}`); // Navigate to update page with worksheet ID
+    };
+
+    const getQuestionTypeLabel = (questionType: string) => {
+        switch (questionType) {
+            case "FILL_BLANK":
+                return "Fill the blank with your answer";
+            case "ONE_ANSWER":
+                return "Choose one right answer";
+            case "MULTIPLE_ANSWERS":
+                return "Choose multiple right answers";
+            default:
+                return "";
+        }
+    };
 
     return (
         <div>
@@ -27,7 +52,8 @@ const WorksheetDetails = () => {
                     <h3>Sentences: </h3>
                     {worksheet.sentences.map(sentence => (
                         <div key={sentence.sentenceId}>
-                            <p>{sentence.content}</p>
+                            <p>QuestionType: {getQuestionTypeLabel(sentence.questionType)}</p>
+                            <p>Question: {sentence.content}</p>
                             <h4>Answers: </h4>
                             <ul>
                                 {sentence.answers.map(answer => (
@@ -38,6 +64,8 @@ const WorksheetDetails = () => {
                             </ul>
                         </div>
                     ))}
+                    <button onClick={handleDelete}>Delete</button>
+                    <button onClick={handleUpdate}>Update</button>
                 </div>
             ) : (<div>Loading....</div>)}
         </div>

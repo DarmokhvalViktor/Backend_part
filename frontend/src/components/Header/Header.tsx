@@ -6,7 +6,7 @@ const Header = () => {
     const accessToken = authService.getAccessToken();
 
     const handleCreateWorksheet = () => {
-        navigate("createWorksheet");
+        navigate("createOrUpdateWorksheet");
     };
     const getAllWorksheets = () => {
         navigate("worksheets");

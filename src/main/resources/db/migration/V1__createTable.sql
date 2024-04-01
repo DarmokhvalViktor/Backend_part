@@ -27,7 +27,7 @@ CREATE TABLE sentences (
     worksheet_id INT,
     question_type_id BIGINT,
     FOREIGN KEY (worksheet_id) REFERENCES worksheets(worksheet_id) ON DELETE CASCADE,
-    FOREIGN KEY (question_type_id) REFERENCES question_type(question_type_id) ON DELETE CASCADE
+    FOREIGN KEY (question_type_id) REFERENCES question_type(question_type_id)
 );
 
 CREATE TABLE answers (

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -28,37 +27,34 @@ public class MainMapper {
         userDTO.setRole(user.getRole().getRole());
         return userDTO;
     }
-
     public WorksheetDTO convertWorksheetToDTO(Worksheet worksheet) {
-        WorksheetDTO testContainerDTO = new WorksheetDTO();
-        testContainerDTO.setTitle(worksheet.getTitle());
-        testContainerDTO.setClassYear(worksheet.getClassYear());
-        testContainerDTO.setWorksheetId(worksheet.getWorksheetId());
-        testContainerDTO.setInstruction(worksheet.getInstruction());
-        testContainerDTO.setSubject(worksheet.getSubject());
+        WorksheetDTO worksheetDTO = new WorksheetDTO();
+        worksheetDTO.setWorksheetId(worksheet.getWorksheetId());
+        worksheetDTO.setTitle(worksheet.getTitle());
+        worksheetDTO.setClassYear(worksheet.getClassYear());
+        worksheetDTO.setWorksheetId(worksheet.getWorksheetId());
+        worksheetDTO.setInstruction(worksheet.getInstruction());
+        worksheetDTO.setSubject(worksheet.getSubject());
         List<SentenceDTO> sentenceDTOList = new ArrayList<>();
         for (Sentence sentence : worksheet.getSentences()) {
             SentenceDTO sentenceDTO = convertSentenceToDTO(sentence);
             sentenceDTOList.add(sentenceDTO);
         }
-        testContainerDTO.setSentences(sentenceDTOList);
-        return testContainerDTO;
+        worksheetDTO.setSentences(sentenceDTOList);
+        return worksheetDTO;
     }
 
-    public Worksheet convertWorksheetDTOToEntity(WorksheetDTO testContainerDTO) {
+    public Worksheet convertWorksheetDTOToEntity(WorksheetDTO worksheetDTO) {
         Worksheet worksheet = new Worksheet();
-        worksheet.setTitle(testContainerDTO.getTitle());
-        worksheet.setClassYear(testContainerDTO.getClassYear());
-        worksheet.setInstruction(testContainerDTO.getInstruction());
-        worksheet.setSubject(testContainerDTO.getSubject());
-        List<Sentence> sentences = new ArrayList<>();
+        worksheet.setTitle(worksheetDTO.getTitle());
+        worksheet.setClassYear(worksheetDTO.getClassYear());
+        worksheet.setInstruction(worksheetDTO.getInstruction());
+        worksheet.setSubject(worksheetDTO.getSubject());
 
-        for (SentenceDTO test : testContainerDTO.getSentences()) {
-            Sentence sentence2 = convertSentenceDTOToEntity(test);
-            sentence2.setWorksheet(worksheet);
-            sentences.add(sentence2);
+        for (SentenceDTO sentenceDTO : worksheetDTO.getSentences()) {
+            Sentence sentence = convertSentenceDTOToEntity(sentenceDTO);
+            worksheet.addSentence(sentence);
         }
-        worksheet.setSentences(sentences);
         return worksheet;
     }
 
@@ -66,11 +62,12 @@ public class MainMapper {
         SentenceDTO sentenceDTO = new SentenceDTO();
         sentenceDTO.setContent(sentence.getContent());
         sentenceDTO.setSentenceId(sentence.getSentenceId());
+        sentenceDTO.setWorksheetId(sentence.getWorksheet().getWorksheetId());
         Optional<QuestionType> questionType = Optional.ofNullable(sentence.getQuestionType());
         questionType.ifPresentOrElse(
-                qType -> sentenceDTO.setQuestionTypeId(qType.getId()),
+                qType -> sentenceDTO.setQuestionType(qType.getType().getQuestionType()),
                 () -> {
-                    sentenceDTO.setQuestionTypeId(3L);
+                    sentenceDTO.setQuestionType("FILL_BLANK");
                 }
         );
 
@@ -84,31 +81,13 @@ public class MainMapper {
     private Sentence convertSentenceDTOToEntity(SentenceDTO sentenceDTO) {
         Sentence sentence = new Sentence();
         sentence.setContent(sentenceDTO.getContent());
-        Optional<Long> questionTypeId = Optional.ofNullable(sentenceDTO.getQuestionTypeId());
-        if (questionTypeId.isPresent()) {
-            Optional<QuestionType> optionalQuestionType = questionTypeRepository.findById(questionTypeId.get());
-
-            optionalQuestionType.ifPresentOrElse(
-                    sentence::setQuestionType,
-                    () -> {
-                        sentence.setQuestionType(questionTypeRepository.findByType(EQuestionType.FILL_BLANK)
-                                .orElseThrow(() -> new IllegalStateException("FILL_BLANK question type not found")));
-                    }
-            );
-        } else {
-            sentence.setQuestionType(questionTypeRepository.findByType(EQuestionType.FILL_BLANK)
-                    .orElseThrow(() -> new IllegalStateException("FILL_BLANK question type not found")));
+        sentence.setQuestionType(questionTypeRepository
+                .findByType(EQuestionType.valueOf(sentenceDTO.getQuestionType()))
+                .orElseThrow(() -> new RuntimeException("Question type was not found in database")));
+        for(AnswerDTO answerDTO: sentenceDTO.getAnswers()) {
+            Answer answer = convertAnswerDTOToEntity(answerDTO);
+            sentence.addAnswer(answer);
         }
-
-        List<Answer> answerList = sentenceDTO.getAnswers().stream()
-                .map(answerDTO -> {
-                    Answer answer = convertAnswerDTOToEntity(answerDTO);
-                    answer.setSentence(sentence);
-                    return answer;
-                })
-                .toList();
-        sentence.setAnswers(answerList);
-
         return sentence;
     }
 

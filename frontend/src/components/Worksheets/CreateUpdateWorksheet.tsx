@@ -1,16 +1,37 @@
-import {Sentence, IWorksheet} from "../../interfaces/IWorksheetResponse";
-import {useForm} from "react-hook-form";
-import {useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {worksheetService} from "../../services/worksheetService";
+import { useForm } from "react-hook-form";
+import {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import { worksheetService } from "../../services/worksheetService";
+import { IWorksheet, Sentence, Answer } from "../../interfaces/IWorksheetResponse";
 
-const CreateWorksheet = () => {
-    const { register, handleSubmit } = useForm<IWorksheet>();
-    const [sentences, setSentences] = useState<Sentence[]>([{ content: '', answers: [{ answerContent: '', isCorrect: false }] }]);
+const CreateUpdateWorksheet = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
+    const isAddMode = !id;
+
+    const { register, handleSubmit, setValue } = useForm<IWorksheet>();
+    const [sentences, setSentences] = useState<Sentence[]>([{ content: '', answers: [{ answerContent: '', isCorrect: false }], questionType: '' }]);
+    const [worksheet, setWorksheet] = useState<IWorksheet | null>(null);
+
+    useEffect(() => {
+        if (!isAddMode) {
+            // Fetch worksheet data if in update mode
+            worksheetService.getWorksheetById(parseInt(id))
+                .then(({data}) => {
+                    setWorksheet(data);
+                    const { title, classYear, instruction, subject, sentences: worksheetSentences } = data;
+                    setValue('title', title);
+                    setValue('classYear', classYear);
+                    setValue('instruction', instruction);
+                    setValue('subject', subject);
+                    setSentences(worksheetSentences);
+                })
+                .catch(error => console.error('Error fetching worksheet:', error));
+        }
+    }, [id, isAddMode, setValue]);
 
     const addSentence = () => {
-        setSentences([...sentences, { content: '', answers: [{ answerContent: '', isCorrect: false }] }]);
+        setSentences([...sentences, { content: '', answers: [{ answerContent: '', isCorrect: false }], questionType: '' }]);
     };
 
     const addAnswer = (sentenceIndex: number) => {
@@ -39,16 +60,26 @@ const CreateWorksheet = () => {
     const onSubmit = async (data: IWorksheet) => {
         try {
             data.sentences = sentences;
-            await worksheetService.createWorksheet(data);
-            navigate("/worksheets");
+            console.log(data);
+            if (isAddMode) {
+                await worksheetService.createWorksheet(data);
+                navigate('/worksheets');
+            } else {
+                await worksheetService.updateWorksheet(data, parseInt(id));
+                navigate('/worksheets');
+            }
         } catch (error) {
-            console.error('Error creating worksheet:', error);
+            console.error('Error:', error);
             // Handle error
         }
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
+            <div>
+                <label>Title:</label>
+                <input type="text" {...register('title', { required: true })} />
+            </div>
             <div>
                 <label>Class Year:</label>
                 <input type="text" {...register('classYear', { required: true })} />
@@ -60,10 +91,6 @@ const CreateWorksheet = () => {
             <div>
                 <label>Subject:</label>
                 <input type="text" {...register('subject', { required: true })} />
-            </div>
-            <div>
-                <label>Title:</label>
-                <input type="text" {...register('title', { required: true })} />
             </div>
 
             {/* Dynamically add sentences */}
@@ -79,6 +106,22 @@ const CreateWorksheet = () => {
                             return updatedSentences;
                         })}
                     />
+                    <select
+                        value={sentence.questionType}
+                        onChange={(e) => {
+                            const selectedQuestionType = e.target.value;
+                            setSentences((prevSentences) => {
+                                const updatedSentences = [...prevSentences];
+                                updatedSentences[sentenceIndex].questionType = selectedQuestionType;
+                                return updatedSentences;
+                            });
+                        }}
+                    >
+                        <option value="">Select Question Type</option>
+                        <option value="FILL_BLANK">FILL_BLANK</option>
+                        <option value="ONE_ANSWER">ONE_ANSWER</option>
+                        <option value="MULTIPLE_ANSWERS">MULTIPLE_ANSWERS</option>
+                    </select>
                     <button type="button" onClick={() => deleteSentence(sentenceIndex)}>Delete Sentence</button>
                     <button type="button" onClick={() => addAnswer(sentenceIndex)}>Add Answer</button>
                     {/* Dynamically add answers */}
@@ -108,9 +151,9 @@ const CreateWorksheet = () => {
             ))}
 
             <button type="button" onClick={addSentence}>Add Sentence</button>
-            <button type="submit">Create Worksheet</button>
+            <button type="submit">{isAddMode ? 'Create Worksheet' : 'Update Worksheet'}</button>
         </form>
     );
 };
 
-export {CreateWorksheet};
+export { CreateUpdateWorksheet };

@@ -8,6 +8,8 @@ export interface Answer {
 export interface Sentence {
   answers: Answer[];
   content: string;
+  questionType: string;
+  worksheetId?: number;
   sentenceId?: number;
 }
 
