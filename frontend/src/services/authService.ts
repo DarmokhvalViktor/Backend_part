@@ -3,18 +3,24 @@ import {IRes} from "../types/resType";
 import {apiService} from "./apiService";
 import {ITokenPairResponse} from "../interfaces/ITokenPairResponse";
 import {IUserInfo} from "../interfaces/IUserInfo";
+import {IUserRegistration} from "../interfaces/IUserRegistration";
 
 const accessTokenKey = "accessToken";
 const refreshTokenKey = "refreshToken";
 
+
 const authService = {
-    register(user: IUser): IRes<ITokenPairResponse> {
-        return apiService.post("auth/signup", user);
+    async register(user: IUserRegistration): Promise<IUserInfo> {
+        const {data} = await apiService.post("auth/register", user);
+        this.setTokens(data);
+        const {data: me} = await this.me();
+        return me;
     },
     async login(user: IUser): Promise<IUserInfo> {
         const {data} = await apiService.post("auth/login", user);
         this.setTokens(data);
         const {data: me} = await this.me();
+        console.log(me)
         return me;
     },
     async refresh(): Promise<void> {

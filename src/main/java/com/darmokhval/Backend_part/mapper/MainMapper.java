@@ -22,8 +22,8 @@ public class MainMapper {
     public UserDetailsResponseDTO convertUserToDTO(User user) {
         UserDetailsResponseDTO userDTO = new UserDetailsResponseDTO();
         userDTO.setId(user.getId());
-        userDTO.setEmail(userDTO.getEmail());
-        userDTO.setUsername(userDTO.getUsername());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setUsername(user.getUsername());
         userDTO.setRole(user.getRole().getRole());
         return userDTO;
     }

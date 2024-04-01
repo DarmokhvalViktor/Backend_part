@@ -20,6 +20,7 @@ const LoginPage = () => {
 
     return (
         <form onSubmit={handleSubmit(login)}>
+            <h1>Login page</h1>
             <input type="text" placeholder={"username"} {...register("username")}/>
             <input type="password" placeholder={"password"} {...register("password")}/>
             <button>Login</button>
